@@ -1,0 +1,8 @@
+numpy
+scipy
+pyyaml
+liac-arff
+pandas
+scikit-learn
+tqdm
+seaborn
