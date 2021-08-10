@@ -40,10 +40,10 @@ axis_font_size = 15
 legend_font_size = 15
 # Data --------------------------------------------
 # Paper Figures
-general_perf: bool = True
-general_perf_min_accuracy: float = 30
+general_perf: bool = False
+general_perf_min_accuracy: float = 75
 ranking_perf: bool = True
-ranking_perf_min_accuracy: float = 0
+ranking_perf_min_accuracy: float = 75
 # Other Figures
 par_penalty: bool = False
 
@@ -53,48 +53,49 @@ bias: bool = False
 
 # Detailed data ------------------------------------
 # Paper Figures
-accuracy_wrt_time: bool = True
-correct_wrt_confidence: bool = True
-instances_wrt_time: bool = True
+accuracy_wrt_time: bool = False
+correct_wrt_confidence: bool = False
+instances_wrt_time: bool = False
 # Other Figures
 confidence_wrt_time: bool = False
 
 # ==================================================
 sns.set_style("whitegrid")
+matplotlib.rcParams.update({'font.size': 14})
 matplotlib.rcParams['mathtext.fontset'] = 'custom'
 matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
 matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
 matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
 matplotlib.rcParams['mathtext.fontset'] = 'cm'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
-matplotlib.rcParams.update({'font.size': 14})
+
 
 
 def __rename_strategies__(df: pd.DataFrame) -> pd.DataFrame:
     # Remove Norm X
     df = df[~df["strategy"].str.contains("Norm")].copy(deep=False)
     # Rename selection component
-    # df["strategy"] = df["strategy"].str.replace(
-    #     "Var./Time", "variance-based", regex=False)
-    # df["strategy"] = df["strategy"].str.replace(
-    #     "Ranking", "ranking-based", regex=False)
-    # df["strategy"] = df["strategy"].str.replace(
-    #     ".*-Discr\\./Time", "discrimination-based", regex=True)
-    # df["strategy"] = df["strategy"].str.replace(
-    #     "AutoDistance-.", "feature-based", regex=True)
-    # df["strategy"] = df["strategy"].str.replace(
-    #     "Info. over Decision/Time", "information-based", regex=False)
-    # df["strategy"] = df["strategy"].str.replace(
-    #     "Random", "random", regex=False)
+    df["strategy"] = df["strategy"].str.replace(
+        "Var./Time", "variance-based", regex=False)
+    df["strategy"] = df["strategy"].str.replace(
+        "Ranking", "ranking-based", regex=False)
+    df["strategy"] = df["strategy"].str.replace(
+        ".*-Discr\\./Time", "discrimination-based", regex=True)
+    df["strategy"] = df["strategy"].str.replace(
+        "AutoDistance-.", "feature-based", regex=True)
+    df["strategy"] = df["strategy"].str.replace(
+        "Info. over Decision/Time", "information-based", regex=False)
+    df["strategy"] = df["strategy"].str.replace(
+        "Random", "random", regex=False)
 
-    # # Rename discrimination component
-    # df["strategy"] = df["strategy"].str.replace(" 10100%", "", regex=False)
-    # df["strategy"] = df["strategy"].str.replace(".00%", "%", regex=False)
-    # df["strategy"] = df["strategy"].str.replace(
-    #     "Cauchy Constr.[0, 10]", "distribution-based", regex=False)
-    # df["strategy"] = df["strategy"].str.replace(r"\+ C$", "+ TC", regex=True)
-    # df["strategy"] = df["strategy"].str.replace(
-    #     "Subset", "subset", regex=False)
+    # Rename discrimination component
+    df["strategy"] = df["strategy"].str.replace(" 10100%", "", regex=False)
+    df["strategy"] = df["strategy"].str.replace(".00%", "%", regex=False)
+    df["strategy"] = df["strategy"].str.replace(
+        "Cauchy Constr.[0, 10]", "distribution-based", regex=False)
+    df["strategy"] = df["strategy"].str.replace(r"\+ C$", "+ TC", regex=True)
+    df["strategy"] = df["strategy"].str.replace(
+        "Subset", "subset", regex=False)
 
     df["selection"] = df["strategy"].str.extract(r'^([^+]*) \+ .*')
     df["discrimination"] = df["strategy"].str.extract(r'^[^+]* \+ (.*)')
@@ -151,7 +152,7 @@ def __filter_strategies_by_discriminator__(df: pd.DataFrame,
     df = __name_filter__(df, "subset", baseline)
     df = __name_filter__(df, "Wilcoxon", wilcoxon)
     df = __name_filter__(df, "distribution-based", full_distribution)
-    df = __name_filter__(df, r"\+ CT$", timeout_correction)
+    df = __name_filter__(df, r"\+ TC$", timeout_correction)
     return df
 
 
@@ -245,18 +246,20 @@ def plot_general_performance(df, dataset):
     if legend:
         plt.setp(g.legend.get_texts(), fontsize=legend_font_size)
         plt.setp(g.legend.get_title(), fontsize=legend_font_size)
-        figlegend = plt.figure(figsize=(5.2, 0.95))
+        figlegend = plt.figure(figsize=(2.51, 3.26))
 
         patches, labels = g.axes[0, 0].get_legend_handles_labels()
         # Get rid of the legend on the first plot, so it is only drawn on the separate figure
         g.legend.remove()
-        # Add empty path with color white for better rendering
-        path = matplotlib.patches.PathPatch(
-            matplotlib.path.Path(vertices=[(0, 0)]), facecolor="white")
-        patches.insert(7, path)
-        labels.insert(7, " ")
+        labels[1] = r"$\bf{selection}$"
+        labels[-4] = r"$\bf{discrimination}$"
+        # # Add empty path with color white for better rendering
+        # path = matplotlib.patches.PathPatch(
+        #     matplotlib.path.Path(vertices=[(0, 0)]), facecolor="white")
+        # patches.insert(7, path)
+        # labels.insert(7, " ")
 
-        figlegend.legend(handles=patches, labels=labels, ncol=3)
+        figlegend.legend(handles=patches, labels=labels, ncol=1)
         figlegend.savefig('legend.pdf')
         print("Produced legend.pdf")
         plt.close(figlegend)
@@ -303,22 +306,19 @@ def plot_ranking_performance(df, dataset):
     if legend:
         patches, labels = g.axes[0, 0].get_legend_handles_labels()
 
-        plt.close(plt.gcf())
-        g = sns.relplot(y="time", x="correct",
-                        style="discrimination", data=df, legend=False, s=marker_size,
-                        markers=["X", "d", "."], linewidth=1)
-        plt.plot(x, y, 'k--', label="Pareto front")
-        plt.xlabel("% of time", fontsize=axis_font_size)
-        plt.ylabel("% of accuracy", fontsize=axis_font_size)
-        plt.xlim(0, 100)
-        plt.ylim(ranking_perf_min_accuracy, 101)
-        plt.tight_layout()
-        plt.legend(handles=patches, labels=labels)
-        ax = plt.gca()
-        plt.setp(ax.get_legend().get_texts(), fontsize=legend_font_size)
-        plt.setp(ax.get_legend().get_title(), fontsize=legend_font_size)
-    else:
-        plt.tight_layout()
+        plt.setp(g.legend.get_texts(), fontsize=legend_font_size)
+        plt.setp(g.legend.get_title(), fontsize=legend_font_size)
+        figlegend = plt.figure(figsize=(2.41, 1.46))
+
+        patches, labels = g.axes[0, 0].get_legend_handles_labels()
+        # Get rid of the legend on the first plot, so it is only drawn on the separate figure
+        g.legend.remove()
+
+        figlegend.legend(handles=patches, labels=labels, ncol=1)
+        figlegend.savefig('legend.pdf')
+        print("Produced legend.pdf")
+        plt.close(figlegend)
+    plt.tight_layout()
     plt.show()
 
 
@@ -437,24 +437,20 @@ def plot_correct_wrt_confidence(df: pd.DataFrame, dataset):
     plt.xlim(70, 100)
     plt.ylim(70, 100)
     if legend:
-        patches, labels = g.axes[0, 0].get_legend_handles_labels()
 
-        plt.close(plt.gcf())
-        g = sns.relplot(y="confidence", x="prediction",
-                        hue="selection", data=df, legend=False, marker=".")
-        plt.plot(list(range(70, 101)), list(range(70, 101)), "black")
-        plt.xlabel("% of accuracy", fontsize=axis_font_size)
-        plt.ylabel("% of confidence", fontsize=axis_font_size)
-        plt.xlim(70, 100)
-        plt.ylim(70, 100)
-        plt.tight_layout()
-        leg = plt.legend(handles=patches, labels=labels)
-        leg.set_draggable(True)
-        ax = plt.gca()
-        plt.setp(ax.get_legend().get_texts(), fontsize=legend_font_size)
-        plt.setp(ax.get_legend().get_title(), fontsize=legend_font_size)
-    else:
-        plt.tight_layout()
+        plt.setp(g.legend.get_texts(), fontsize=legend_font_size)
+        plt.setp(g.legend.get_title(), fontsize=legend_font_size)
+        figlegend = plt.figure(figsize=(2.61, 1.59))
+
+        patches, labels = g.axes[0, 0].get_legend_handles_labels()
+        # Get rid of the legend on the first plot, so it is only drawn on the separate figure
+        g.legend.remove()
+
+        figlegend.legend(handles=patches, labels=labels, ncol=1)
+        figlegend.savefig('legend.pdf')
+        print("Produced legend.pdf")
+        plt.close(figlegend)
+    plt.tight_layout()
     plt.show()
 
 
@@ -501,15 +497,25 @@ def plot_instances_wrt_time(df: pd.DataFrame, dataset):
     # Take mean performance
     df = df.groupby(["selection", "time"]).mean().reset_index()
 
-    sns.lineplot(x="time", y="instances",
+    g = sns.lineplot(x="time", y="instances",
                  hue="selection", data=df, legend=legend)
     plt.xlim(0, 100)
     plt.ylim(bottom=0, top=np.max(df["instances"].values))
     plt.xlabel("% of time", fontsize=axis_font_size)
     plt.ylabel("Number of instances run", fontsize=axis_font_size)
     if legend:
-        leg = plt.legend(fontsize=legend_font_size)
-        leg.set_draggable(True)
+        plt.setp(g.get_legend().get_texts(), fontsize=legend_font_size)
+        plt.setp(g.get_legend().get_title(), fontsize=legend_font_size)
+        figlegend = plt.figure(figsize=(2.61, 1.59))
+
+        patches, labels = g.get_legend_handles_labels()
+        # Get rid of the legend on the first plot, so it is only drawn on the separate figure
+        g.get_legend().remove()
+
+        figlegend.legend(handles=patches, labels=labels, ncol=1)
+        figlegend.savefig('legend.pdf')
+        print("Produced legend.pdf")
+        plt.close(figlegend)
     plt.tight_layout()
     plt.show()
 
@@ -528,14 +534,24 @@ def plot_confidence_wrt_time(df: pd.DataFrame, dataset):
     # Take mean performance
     df = df.groupby(["selection", "time"]).mean().reset_index()
 
-    sns.lineplot(x="time", y="confidence",
+    g = sns.lineplot(x="time", y="confidence",
                  hue="selection", data=df, legend=legend)
     plt.xlabel("% of time", fontsize=axis_font_size)
     plt.ylabel("% of confidence", fontsize=axis_font_size)
     plt.xlim(0, 100)
     plt.ylim(75, 100)
     if legend:
-        plt.legend(fontsize=legend_font_size)
+        plt.setp(g.get_legend().get_texts(), fontsize=legend_font_size)
+        plt.setp(g.get_legend().get_title(), fontsize=legend_font_size)
+        figlegend = plt.figure(figsize=(2.61, 2.76))
+
+        patches, labels = g.get_legend_handles_labels()
+        # Get rid of the legend on the first plot, so it is only drawn on the separate figure
+        g.get_legend().remove()
+        figlegend.legend(handles=patches, labels=labels, ncol=1)
+        figlegend.savefig('legend.pdf')
+        print("Produced legend.pdf")
+        plt.close(figlegend)
     plt.tight_layout()
     plt.show()
 
@@ -553,7 +569,7 @@ def plot_correct_wrt_time(df: pd.DataFrame, dataset):
                     ).mean().reset_index()
     df["prediction"] *= 100
 
-    sns.lineplot(x="time", y="prediction",
+    g = sns.lineplot(x="time", y="prediction",
                  hue="selection", style="discrimination", data=df, legend=legend, linewidth=1)
 
     # plt.xlabel("% of instances", fontsize=axis_font_size)
@@ -563,15 +579,34 @@ def plot_correct_wrt_time(df: pd.DataFrame, dataset):
     plt.ylim(50, 100)
     plt.gca().set_aspect(2, 'box')
 
+
     if legend:
-        plt.legend(fontsize=legend_font_size)
+        plt.setp(g.get_legend().get_texts(), fontsize=legend_font_size)
+        plt.setp(g.get_legend().get_title(), fontsize=legend_font_size)
+        figlegend = plt.figure(figsize=(2.61, 2.76))
+
+        patches, labels = g.get_legend_handles_labels()
+        # Get rid of the legend on the first plot, so it is only drawn on the separate figure
+        g.get_legend().remove()
+        labels[0] = r"$\bf{selection}$"
+        labels[-3] = r"$\bf{discrimination}$"
+        # # Add empty path with color white for better rendering
+        # path = matplotlib.patches.PathPatch(
+        #     matplotlib.path.Path(vertices=[(0, 0)]), facecolor="white")
+        # patches.insert(7, path)
+        # labels.insert(7, " ")
+
+        figlegend.legend(handles=patches, labels=labels, ncol=1)
+        figlegend.savefig('legend.pdf')
+        print("Produced legend.pdf")
+        plt.close(figlegend)
     plt.tight_layout()
     plt.savefig("correct_wrt_time.pdf", bbox_inches='tight')
     print("Paper ready figure was saved as correct_wrt_time.pdf.")
     plt.show()
 
 
-general_df = pd.read_csv(f"./runs_{suffix}.csv")
+general_df = pd.read_csv(f"./guess_wrt_time_{suffix}.csv")
 general_df = general_df.drop("Unnamed: 0", axis=1)
 for scenario in np.unique(general_df["dataset"].values).tolist():
     general_df = general_df[general_df["dataset"].str.contains(scenario)]
@@ -588,7 +623,7 @@ for scenario in np.unique(general_df["dataset"].values).tolist():
     if par_penalty:
         plot_par_penalty(general_df, dataset)
     del general_df  # Free memory
-    detailed_df = pd.read_csv(f"./detailed_runs_{suffix}.csv")
+    detailed_df = pd.read_csv(f"./detailed_guess_wrt_time_{suffix}.csv")
     detailed_df = detailed_df.drop("Unnamed: 0", axis=1)
     detailed_df = detailed_df[detailed_df["dataset"].str.contains(scenario)]
     detailed_df = __rename_strategies__(detailed_df)
