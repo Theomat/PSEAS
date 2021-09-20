@@ -30,6 +30,8 @@ conda activate pseas
 yes | conda install pip
 # install this package and the dependencies
 pip install -e .
+# you can also install dependencies with the following command where their versions are locked:
+pip install -r requirements.txt
 
 # You are good to go :)
 
