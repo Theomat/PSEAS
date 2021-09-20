@@ -1,3 +1,7 @@
+"""
+Provides cdf and pdf methods for a truncated Cauchy distribution.
+"""
+
 from typing import Union
 import numpy as np
 

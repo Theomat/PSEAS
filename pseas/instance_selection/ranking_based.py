@@ -5,7 +5,7 @@ from typing import Tuple, List, Optional
 import numpy as np
 
 
-def __order__(algo_a: int, algo_b: int, ranking: int) -> int:
+def __order__(algo_a: int, algo_b: int, ranking: np.ndarray) -> int:
     for algo in ranking:
         if algo == algo_a:
             return 1
@@ -15,16 +15,22 @@ def __order__(algo_a: int, algo_b: int, ranking: int) -> int:
 
 class RankingBased(InstanceSelection):
 
+    """
+    Ranking based selection method, described in the appendix in our paper.
+    """
+
     def ready(self, perf_matrix: np.ndarray, **kwargs) -> None:
         algorithms_score: np.ndarray = -np.sum(perf_matrix, axis=0)
         ranking: np.ndarray = np.argsort(algorithms_score)
 
+        # Compute scores 
         scores = []
         for instance in range(perf_matrix.shape[0]):
             instance_ranking: np.ndarray = np.argsort(-perf_matrix[instance])
             f_b: float = 0
             f_g: float = 0
             size_g: int = 0
+            # Compute f_a and f_b depending if ranking is identic locally (instanc) and globally (all instances)
             for algo_a in range(algorithms_score.shape[0]):
                 for algo_b in range(algo_a + 1, algorithms_score.shape[0]):
                     global_order = __order__(algo_a, algo_b, ranking)

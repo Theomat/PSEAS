@@ -1,3 +1,8 @@
+"""
+Prints to standatd output the difficulty of all the datasets.
+"""
+
+
 from typing import List
 from pseas.data import data_transformer, feature_extractor, result_extractor
 from pseas.data.aslib_scenario import ASlibScenario

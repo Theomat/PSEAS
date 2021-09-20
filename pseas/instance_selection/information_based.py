@@ -95,6 +95,10 @@ def __compute_information_relative_to_decision__(self, state, k: float = 5):
 
 class InformationBased(InstanceSelection):
 
+    """
+    Information based selection method.
+    """
+
     def __init__(self, distribution: str = "cauchy") -> None:
         super().__init__()
         self._name: str = "information-based"
@@ -105,7 +109,6 @@ class InformationBased(InstanceSelection):
             Union[List[float], np.ndarray]], float] = sum
         if distribution == "norm":
             self._sum_scales = lambda it: np.sqrt(np.sum(np.square(it)))
-        # self.__compute_information__ = __compute_information_relative_to_estimation__ if info_over_estimation else __compute_information_relative_to_decision__
         self.__compute_information__ = __compute_information_relative_to_decision__
 
     def ready(self, distributions: np.ndarray, **kwargs) -> None:

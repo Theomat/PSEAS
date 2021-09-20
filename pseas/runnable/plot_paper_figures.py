@@ -1,3 +1,15 @@
+"""
+This file can generate all the figures used in the paper.
+You can run it with -h for some help.
+
+Feel free to change tunable parameters line 47 and after.
+You can also do a bit of tweaking inside the methods.
+
+Note that:
+    - you need to have produced the data to be able to plot anything.
+    - for the detailed_sata figures it may take a while.
+
+"""
 from typing import Optional, Tuple
 
 from scipy.spatial import ConvexHull
@@ -35,6 +47,9 @@ legend: bool = parsed_parameters.legend
 # =============================================================================
 # Finished parsing
 # =============================================================================
+# =============================================================================
+# Start Tunable Parameters
+# =============================================================================
 marker_size = 110
 axis_font_size = 15
 legend_font_size = 15
@@ -58,8 +73,6 @@ correct_wrt_confidence: bool = False
 instances_wrt_time: bool = False
 # Other Figures
 confidence_wrt_time: bool = False
-
-# ==================================================
 sns.set_style("whitegrid")
 matplotlib.rcParams.update({'font.size': 14})
 matplotlib.rcParams['mathtext.fontset'] = 'custom'
@@ -68,6 +81,9 @@ matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
 matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
 matplotlib.rcParams['mathtext.fontset'] = 'cm'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
+# =============================================================================
+# End Tunable Parameters
+# =============================================================================
 
 
 
@@ -130,13 +146,13 @@ def __name_filter__(df: pd.DataFrame, name_contains: str, apply_filter: Optional
 
 def __filter_strategies_by_selection_method__(df: pd.DataFrame,
                                               baseline: Optional[bool] = None,
-                                              sample_based: Optional[bool] = None,
+                                              discrimination_based: Optional[bool] = None,
                                               distribution_based: Optional[bool] = None,
                                               information_based: Optional[bool] = None,
                                               feature_based: Optional[bool] = None,
                                               ) -> pd.DataFrame:
     df = __name_filter__(df, "random", baseline)
-    df = __name_filter__(df, "sample-based", sample_based)
+    df = __name_filter__(df, "discrimination-based", discrimination_based)
     df = __name_filter__(df, "variance-based", distribution_based)
     df = __name_filter__(df, "information-based", information_based)
     df = __name_filter__(df, "feature-based", feature_based)

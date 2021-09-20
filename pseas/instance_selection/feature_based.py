@@ -30,6 +30,9 @@ def __find_weights__(x: np.ndarray, y: np.ndarray) -> np.ndarray:
 
 
 class FeatureBased(DistanceBased):
+    """
+    Feature based selection method, it is an instance of the distance based method.
+    """
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__("feature-based", self._dynamic_distance, *args, **kwargs)

@@ -5,6 +5,13 @@ import numpy as np
 
 
 class DiscriminationBased(InstanceSelection):
+    """
+    Discrimination based method based on dominance of algorithms.
+
+    Parameter:
+    ----------
+    - rho: the domination ratio score = #{ time(algo)/time(best algo) <= rho } / expected_time
+    """
 
     def __init__(self, rho: float) -> None:
         super().__init__()

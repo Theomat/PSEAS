@@ -6,6 +6,9 @@ import numpy as np
 
 
 class RandomBaseline(InstanceSelection):
+    """
+    Random selection method, also the baseline.
+    """
 
     def __init__(self, seed: Optional[int] = None) -> None:
         self._generator = np.random.default_rng(seed)

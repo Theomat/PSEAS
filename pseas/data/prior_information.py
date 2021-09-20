@@ -6,6 +6,9 @@ import scipy.stats as st
 
 
 def initial_guess(distribution_name: str, data: np.ndarray) -> Dict[str, Any]:
+    """
+    Make an inital guess to parameters according to distribution and data.
+    """
     if data.shape[0] == 0:
         return {}
     if distribution_name == "cauchy":
@@ -22,6 +25,9 @@ def initial_guess(distribution_name: str, data: np.ndarray) -> Dict[str, Any]:
     return {}
 
 def fit_same_class(distribution_name: str, perf_matrix: np.ndarray) -> np.ndarray:
+    """
+    Fit all the data of the perf matrix with instances of the same given distribution.
+    """
     distribution = getattr(st, distribution_name)
     prior: np.ndarray = np.zeros(
         (perf_matrix.shape[0], 2), dtype=np.float64)
@@ -71,6 +77,15 @@ def resultdict2matrix(results: Dict[str, Dict[str, float]], algorithms: Optional
 
 
 def compute_all_prior_information(features_dict: Dict[str, np.ndarray], results: Dict[str, Dict[str, float]], algorithms, distribution: str, cutoff_time: float, par_penalty: float) -> Dict[str, Any]:
+    """
+    Computes:
+        - time bounds for each instance
+        - compute features matrix (assumed missing features have been replaced)
+        - compute distributions of running times for each instance
+    
+    Returns:
+        a dictionnary containing all information that is given in strategy.ready()
+    """
     perf_matrix, instance2index, _ = resultdict2matrix(
         results, algorithms)
 

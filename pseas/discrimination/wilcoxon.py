@@ -9,6 +9,15 @@ import warnings
 
 
 class Wilcoxon(Discrimination):
+    """
+    Wilcoxon based discrimination method.
+
+    Note that the confidence may go over the target confidence before running 5 instances nevertheless the is_done method won't return true before the challenger has been run on 5 instances.
+
+    Parameter:
+    ----------
+    - confidence: target confidence level
+    """
 
     def __init__(self, confidence: float = .95) -> None:
         super().__init__()

@@ -17,8 +17,13 @@ _CONSTRAINED_ = {
 class DistributionBased(Discrimination):
     """
     Distribution-based discrimination component.
-    The bounds on the running times are defined with factors alpha and beta.
-    That means that it assumes running times between alpha * t_min and min(cutoff_time, beta * t_max).
+
+    Parameters:
+    -----------
+    - distribution: the name of the scipy.stats distribution (only a few are supported)
+    - constrained: improves the results by using the time bounds on instances
+    - alpha, beta: bounds on the constraints used that means that it assumes running times are between alpha * t_min and min(cutoff_time, beta * t_max)
+    - confidence: target confidence threshold when to stop
     """
     def __init__(self, distribution: str, constrained: bool = True, alpha: float = 0, beta: float = 10, confidence: float = .95) -> None:
         super().__init__()

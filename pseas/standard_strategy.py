@@ -6,6 +6,9 @@ from typing import Tuple, List, Optional
 
 
 class StandardStrategy(Strategy):
+    """
+    Base strategy that simply combines instance selection and discrimination without any processing of the data.
+    """
 
     def __init__(self, instance_selection: InstanceSelection, discrimination: Discrimination) -> None:
         self._instance_selection: InstanceSelection = instance_selection

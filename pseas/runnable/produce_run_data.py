@@ -1,3 +1,10 @@
+"""
+Run this script with -h for the help.
+
+It produces for each method for a given dataset all the data needed to compare the methods on the specified dataset.
+The strategies being compared are defined after line 88.
+"""
+
 import os
 from typing import Dict, List, Optional, Tuple
 
@@ -76,9 +83,11 @@ par: int = parsed_parameters.par
 # Finished parsing
 # =============================================================================
 
+# =============================================================================
+# Start Strategy Definition
+# =============================================================================
+
 # Must not be a lambda function to be picklable
-
-
 def norm2_distance(x: np.ndarray, y: np.ndarray) -> float:
     return np.linalg.norm(x-y)
 
@@ -94,7 +103,7 @@ selectors = [
     lambda: RankingBased(),
     lambda: VarianceBased(),
     lambda: InformationBased(),
-    lambda: DistanceBased("norm2-based", norm2_distance),
+    # lambda: DistanceBased("norm2-based", norm2_distance),
     lambda: FeatureBased()
 ]
 
@@ -102,7 +111,9 @@ strategy_makers = [
     lambda i, d: StandardStrategy(i, d),
     lambda i, d: CorrectedTimeoutStrategy(i, d, seed=0)
 ]
-
+# =============================================================================
+# End Strategy Definition
+# =============================================================================
 
 # Check if file already exists
 original_df_general: Optional[pd.DataFrame] = None

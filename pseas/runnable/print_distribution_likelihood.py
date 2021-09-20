@@ -1,3 +1,8 @@
+"""
+Print to standard output the likelihood for each distribution.
+Run this script with -h to see a few options.
+"""
+
 from pseas.data import data_transformer, feature_extractor, result_extractor
 from pseas.data.aslib_scenario import ASlibScenario
 

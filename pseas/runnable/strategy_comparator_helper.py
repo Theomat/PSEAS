@@ -1,3 +1,8 @@
+"""
+Thsi is only a helper to generate data.
+It enables to collect data while running a specific strategy.
+"""
+
 from numpy import floor
 from pseas.test_env import TestEnv
 from pseas.strategy import Strategy

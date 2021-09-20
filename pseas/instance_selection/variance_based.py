@@ -6,6 +6,9 @@ import numpy as np
 
 
 class VarianceBased(InstanceSelection):
+    """
+    Variance based selection method.
+    """
 
     def ready(self, distributions: np.ndarray, **kwargs) -> None:
         locs: np.ndarray = distributions[:, 0]

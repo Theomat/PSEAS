@@ -1,3 +1,6 @@
+"""
+Provides cdf and pdf methods for a truncated normal distribution.
+"""
 from typing import Union
 import numpy as np
 

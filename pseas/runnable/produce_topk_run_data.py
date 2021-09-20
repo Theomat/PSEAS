@@ -1,3 +1,8 @@
+"""
+Same as produce_run_data but with additional parameter k which is the number of top k algorithms to keep.
+RUn this script with -h for command line options althoug they are similar to produce_run_data.
+"""
+
 import os
 from typing import Dict, List, Optional, Tuple
 

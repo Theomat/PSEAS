@@ -3,6 +3,10 @@ from typing import Tuple, List, Optional
 
 
 class Discrimination(ABC):
+    """
+    Discrimination method interface.
+    Basically method calls to a strategy call the same method if it exists in the discrimination method.
+    """
 
     @abstractmethod
     def ready(self, **kwargs) -> None:

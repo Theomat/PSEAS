@@ -32,6 +32,11 @@ def __compute_distance_matrix__(features: np.ndarray, distance: Callable[[np.nda
 
 
 class DistanceBased(InstanceSelection):
+    """
+    Feature based method that uses the given distance function to the specified exponent.
+    Does not correspond to the feature based method in the paper, but it is a parent of that method.
+    
+    """
 
     def __init__(self, name: str, distance: Callable[[np.ndarray, np.ndarray], float], exponent: float = 1) -> None:
         self._distance: Callable[[np.ndarray, np.ndarray], float] = distance

@@ -1,3 +1,11 @@
+"""
+Plot for each dataset two graphs:
+    1) Total runtime of algorithm with respect to its ranking as fastest algorithm
+    2) Median runtime of instance ordered from lowest to highest
+
+"""
+
+
 from pseas.data import data_transformer, feature_extractor, result_extractor, prior_information
 from pseas.data.aslib_scenario import ASlibScenario
 

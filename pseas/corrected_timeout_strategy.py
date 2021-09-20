@@ -10,6 +10,8 @@ import scipy.stats as st
 
 class CorrectedTimeoutStrategy(Strategy):
     """
+    Strategy that combines instance sleectio nand discrimination but first preprocess the data given by correcting the timeouts.
+
     Parameters:
     -----------
     - precision (float) - the squared error threshold between parameters of two consecutive iteration to stop. Default: 1.

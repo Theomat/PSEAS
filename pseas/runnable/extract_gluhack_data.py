@@ -1,3 +1,11 @@
+"""
+Run this script with -h for help.
+
+Enables to extract the gluhack data from the SAT18 data.
+Note that the background data would include all algortihms and not only the gluhack track.
+
+"""
+
 from pseas.data import feature_extractor
 from pseas.data import result_extractor
 from pseas.data import data_transformer

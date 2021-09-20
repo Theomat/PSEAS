@@ -4,6 +4,13 @@ from typing import Tuple, List, Optional
 
 
 class SubsetBaseline(Discrimination):
+    """
+    Subset X% baseline for discrimination component.
+
+    Parameter:
+    ----------
+    - ratio: ]0, 1] fraction of instances to run before reaching 100% confidence.
+    """
 
     def __init__(self, ratio:float) -> None:
         super().__init__()

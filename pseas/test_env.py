@@ -11,8 +11,11 @@ import numpy as np
 
 
 class ResetChoice(Enum):
+    """Defines the type of reset for an environement."""
     RESET_BEST = 0
+    """Compare against the best performing algorithm."""
     RESET_RANDOM = 1
+    """Compare against a random algorithm."""
 
 class TestEnv:
     """
@@ -90,7 +93,7 @@ class TestEnv:
 
         Parameters:
         -----------
-        - choice (ResetChoice) - the choice type of algorithm to be evaluating
+        - choice (ResetChoice or (challenger_index, incumbent_index)) - the choice type of algorithm to be evaluating
 
         Return:
         -----------
@@ -171,6 +174,10 @@ class TestEnv:
         return self.__state__(), information, information_has_changed
 
     def set_removed_algorithms(self, removed: List[int]):
+        """
+        Remove algorithms out of the dataset and act (even after reset) as if they were not in the dataset.
+        Must be done just before a reset to behave corretly.
+        """
         if removed != self._removed_algorithms:
             self._removed_algorithms = removed
             self._removed_algorithms_has_changed = True
@@ -228,11 +235,17 @@ class TestEnv:
 
     @property
     def n_algorithms(self) -> int:
+        """
+        Number of algorithms in the current dataset. 
+        """
         return self._n_algorithms - len(self._removed_algorithms)
 
 
     @property
     def is_better(self) -> bool:
+        """
+        Return true iff the challenger is better than the incumbent.
+        """
         penalty_eval: float = np.sum(
             self._evaluating_times >= self._cutoff_time) * (self.par_penalty - 1)
         penalty_comparing: float = np.sum(
@@ -242,17 +255,29 @@ class TestEnv:
 
     @property
     def current_time(self) -> float:
+        """
+        Total time used so far by the challenger.
+        """
         return sum([self._evaluating_times[i] for i in range(self._n_instances) if self._done[i]])
     @property
-    def current_instances(self) -> float:
+    def current_instances(self) -> int:
+        """
+        Number of instances on which the challenger has been executed.
+        """
         return np.sum(self._done)
 
     @property
     def current_comparing_max_time(self) -> float:
+        """
+        Total time it would take to run the incumbent on all instances.
+        """
         return np.sum(self._comparing_times)
 
     @property
     def current_max_time(self) -> float:
+        """
+        Total time it would take to run the challenger on all instances.
+        """
         return np.sum(self._evaluating_times)
 
     @property
