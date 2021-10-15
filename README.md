@@ -4,7 +4,7 @@ This is the repository for the code of the paper **"Statistical Comparison of Al
 [Link to paper](https://doi.org/10.4230/LIPIcs.CP.2021.43)
 
 **Authors**:
-Théo Matricon, [Marie Anastacio](https://www.universiteitleiden.nl/en/staffmembers/marie-anastacio#tab-1), [Nathanaël Fijalkow](https://nathanael-fijalkow.github.io/), [Laurent Simon](https://www.labri.fr/perso/lsimon/), [Holger Hoos](https://www.universiteitleiden.nl/en/staffmembers/holger-hoos#tab-1)
+[Théo Matricon](https://theomat.github.io/), [Marie Anastacio](https://www.universiteitleiden.nl/en/staffmembers/marie-anastacio#tab-1), [Nathanaël Fijalkow](https://nathanael-fijalkow.github.io/), [Laurent Simon](https://www.labri.fr/perso/lsimon/), [Holger Hoos](https://www.universiteitleiden.nl/en/staffmembers/holger-hoos#tab-1)
 
 ## For details see our [CP 2021](https://cp2021.a4cp.org/#) [paper](https://doi.org/10.4230/LIPIcs.CP.2021.43):
 
@@ -123,6 +123,7 @@ while strategy.get_current_choice_confidence() < target_confidence:
 
 ## Citing
 
+<<<<<<< HEAD
 ```bibtex
 @InProceedings{matricon_et_al:LIPIcs.CP.2021.43,
   author =	{Matricon, Th\'{e}o and Anastacio, Marie and Fijalkow, Nathana\"{e}l and Simon, Laurent and Hoos, Holger H.},
@@ -143,3 +144,6 @@ while strategy.get_current_choice_confidence() < target_confidence:
   annote =	{Keywords: Performance assessment, early stopping, automated reasoning solvers}
 }
 ```
+=======
+TODO (waiting for publication)
+>>>>>>> 885b70d8c66f4087c8195a3d6ec40d009a332c37
