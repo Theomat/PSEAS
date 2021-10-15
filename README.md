@@ -1,14 +1,14 @@
 # PSEAS
 
 This is the repository for the code of the paper **"Statistical Comparison of Algorithm Performance Through Instance Selection"** published at CP 2021.
-[Link to paper](TODO)
+[Link to paper](https://doi.org/10.4230/LIPIcs.CP.2021.43)
 
 **Authors**:
 Théo Matricon, [Marie Anastacio](https://www.universiteitleiden.nl/en/staffmembers/marie-anastacio#tab-1), [Nathanaël Fijalkow](https://nathanael-fijalkow.github.io/), [Laurent Simon](https://www.labri.fr/perso/lsimon/), [Holger Hoos](https://www.universiteitleiden.nl/en/staffmembers/holger-hoos#tab-1)
 
-## For details see our [CP 2021](https://cp2021.a4cp.org/#) paper:
+## For details see our [CP 2021](https://cp2021.a4cp.org/#) [paper](https://doi.org/10.4230/LIPIcs.CP.2021.43):
 
-[Statistical Comparison of Algorithm Performance Through Instance Selection](link):
+[Statistical Comparison of Algorithm Performance Through Instance Selection](https://doi.org/10.4230/LIPIcs.CP.2021.43):
 ![Figure](https://github.com/Theomat/PSEAS/raw/master/figure.png)
 
 ### Abstract
@@ -123,4 +123,23 @@ while strategy.get_current_choice_confidence() < target_confidence:
 
 ## Citing
 
-TODO (waiting for publication)
+```bibtex
+@InProceedings{matricon_et_al:LIPIcs.CP.2021.43,
+  author =	{Matricon, Th\'{e}o and Anastacio, Marie and Fijalkow, Nathana\"{e}l and Simon, Laurent and Hoos, Holger H.},
+  title =	{{Statistical Comparison of Algorithm Performance Through Instance Selection}},
+  booktitle =	{27th International Conference on Principles and Practice of Constraint Programming (CP 2021)},
+  pages =	{43:1--43:21},
+  series =	{Leibniz International Proceedings in Informatics (LIPIcs)},
+  ISBN =	{978-3-95977-211-2},
+  ISSN =	{1868-8969},
+  year =	{2021},
+  volume =	{210},
+  editor =	{Michel, Laurent D.},
+  publisher =	{Schloss Dagstuhl -- Leibniz-Zentrum f{\"u}r Informatik},
+  address =	{Dagstuhl, Germany},
+  URL =		{https://drops.dagstuhl.de/opus/volltexte/2021/15334},
+  URN =		{urn:nbn:de:0030-drops-153346},
+  doi =		{10.4230/LIPIcs.CP.2021.43},
+  annote =	{Keywords: Performance assessment, early stopping, automated reasoning solvers}
+}
+```
