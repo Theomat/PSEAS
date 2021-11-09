@@ -123,7 +123,6 @@ while strategy.get_current_choice_confidence() < target_confidence:
 
 ## Citing
 
-<<<<<<< HEAD
 ```bibtex
 @InProceedings{matricon_et_al:LIPIcs.CP.2021.43,
   author =	{Matricon, Th\'{e}o and Anastacio, Marie and Fijalkow, Nathana\"{e}l and Simon, Laurent and Hoos, Holger H.},
@@ -144,6 +143,3 @@ while strategy.get_current_choice_confidence() < target_confidence:
   annote =	{Keywords: Performance assessment, early stopping, automated reasoning solvers}
 }
 ```
-=======
-TODO (waiting for publication)
->>>>>>> 885b70d8c66f4087c8195a3d6ec40d009a332c37
