@@ -31,5 +31,5 @@ class InstanceSelection(ABC):
         pass
 
     @abstractmethod
-    def clone(self) -> 'InstanceSelection':
+    def clone(self) -> "InstanceSelection":
         return None

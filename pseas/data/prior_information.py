@@ -13,24 +13,18 @@ def initial_guess(distribution_name: str, data: np.ndarray) -> Dict[str, Any]:
         return {}
     if distribution_name == "cauchy":
         p25, p50, p75 = np.percentile(data, [25, 50, 75])
-        return {
-            "loc": p50, 
-            "scale": (p75 - p25) / 2
-        }
+        return {"loc": p50, "scale": (p75 - p25) / 2}
     elif distribution_name == "norm":
-        return {
-            "loc": np.mean(data),
-            "scale": np.std(data)
-        }
+        return {"loc": np.mean(data), "scale": np.std(data)}
     return {}
+
 
 def fit_same_class(distribution_name: str, perf_matrix: np.ndarray) -> np.ndarray:
     """
     Fit all the data of the perf matrix with instances of the same given distribution.
     """
     distribution = getattr(st, distribution_name)
-    prior: np.ndarray = np.zeros(
-        (perf_matrix.shape[0], 2), dtype=np.float64)
+    prior: np.ndarray = np.zeros((perf_matrix.shape[0], 2), dtype=np.float64)
     for instance in range(perf_matrix.shape[0]):
         data = perf_matrix[instance, :]
         loc, scale = distribution.fit(data, **initial_guess(distribution_name, data))
@@ -39,7 +33,9 @@ def fit_same_class(distribution_name: str, perf_matrix: np.ndarray) -> np.ndarra
     return prior
 
 
-def resultdict2matrix(results: Dict[str, Dict[str, float]], algorithms: Optional[List[str]]) -> Tuple[np.ndarray, Dict[str, int], Dict[str, int]]:
+def resultdict2matrix(
+    results: Dict[str, Dict[str, float]], algorithms: Optional[List[str]]
+) -> Tuple[np.ndarray, Dict[str, int], Dict[str, int]]:
     """
     Transform a results dictionnary into a performance matrix.
 
@@ -59,7 +55,8 @@ def resultdict2matrix(results: Dict[str, Dict[str, float]], algorithms: Optional
     num_instances: int = len(results.keys())
     num_algorithms: int = len(algorithms)
     perf_matrix: np.ndarray = np.zeros(
-        (num_instances, num_algorithms), dtype=np.float64)
+        (num_instances, num_algorithms), dtype=np.float64
+    )
     instance2index: Dict[str, int] = {}
     algorithm2index: Dict[str, int] = {}
     for instance_index, (instance_name, instance_perfs) in enumerate(results.items()):
@@ -76,18 +73,24 @@ def resultdict2matrix(results: Dict[str, Dict[str, float]], algorithms: Optional
     return perf_matrix, instance2index, algorithm2index
 
 
-def compute_all_prior_information(features_dict: Dict[str, np.ndarray], results: Dict[str, Dict[str, float]], algorithms, distribution: str, cutoff_time: float, par_penalty: float) -> Dict[str, Any]:
+def compute_all_prior_information(
+    features_dict: Dict[str, np.ndarray],
+    results: Dict[str, Dict[str, float]],
+    algorithms,
+    distribution: str,
+    cutoff_time: float,
+    par_penalty: float,
+) -> Dict[str, Any]:
     """
     Computes:
         - time bounds for each instance
         - compute features matrix (assumed missing features have been replaced)
         - compute distributions of running times for each instance
-    
+
     Returns:
         a dictionnary containing all information that is given in strategy.ready()
     """
-    perf_matrix, instance2index, _ = resultdict2matrix(
-        results, algorithms)
+    perf_matrix, instance2index, _ = resultdict2matrix(results, algorithms)
 
     # Compute time bounds
     time_bounds = np.zeros((perf_matrix.shape[0], 2))
@@ -95,8 +98,7 @@ def compute_all_prior_information(features_dict: Dict[str, np.ndarray], results:
     time_bounds[:, 1] = np.max(perf_matrix, axis=1)
 
     # Compute feature matrix
-    feature_vect_len: int = features_dict[list(
-        features_dict.keys())[0]].shape[0]
+    feature_vect_len: int = features_dict[list(features_dict.keys())[0]].shape[0]
     features = np.zeros((perf_matrix.shape[0], feature_vect_len), dtype=float)
     for inst, vect in features_dict.items():
         features[instance2index[inst]] = vect

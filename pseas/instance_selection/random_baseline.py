@@ -18,7 +18,9 @@ class RandomBaseline(InstanceSelection):
         pass
 
     def feed(self, state: Tuple[List[Optional[float]], List[float]]) -> None:
-        not_run_instances: List[int] = [index for index, time in enumerate(state[0]) if time is None]
+        not_run_instances: List[int] = [
+            index for index, time in enumerate(state[0]) if time is None
+        ]
         if not_run_instances:
             self._next = self._generator.choice(not_run_instances)
 
@@ -28,5 +30,5 @@ class RandomBaseline(InstanceSelection):
     def name(self) -> str:
         return "random"
 
-    def clone(self) -> 'RandomBaseline':
+    def clone(self) -> "RandomBaseline":
         return RandomBaseline(self._seed)

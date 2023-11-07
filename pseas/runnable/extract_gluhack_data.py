@@ -16,39 +16,45 @@ import pandas as pd
 # Argument parsing.
 # =============================================================================
 import argparse
+
 argument_parser: argparse.ArgumentParser = argparse.ArgumentParser(
-    description="Extract gluhack data from SAT18 run data.")
+    description="Extract gluhack data from SAT18 run data."
+)
 
 argument_default_values = {
-	"sat18_suffix": 'sat18',
-	"dest_suffix": 'gluhack',
-	"sat18_path": '../aslib_data/SAT18-EXP',
-	"gluhack_path": '../aslib_data/GLUHACK-2018',
+    "sat18_suffix": "sat18",
+    "dest_suffix": "gluhack",
+    "sat18_path": "../aslib_data/SAT18-EXP",
+    "gluhack_path": "../aslib_data/GLUHACK-2018",
 }
-argument_parser.add_argument('--sat18-suffix',
-                             type=str,
-                             action='store',
-                             default=argument_default_values['sat18_suffix'],
-                             help=" (default: 'sat18')"
-                             )
-argument_parser.add_argument('--dest-suffix',
-                             type=str,
-                             action='store',
-                             default=argument_default_values['dest_suffix'],
-                             help=" (default: 'gluhack')"
-                             )
-argument_parser.add_argument('--sat18-path',
-                             type=str,
-                             action='store',
-                             default=argument_default_values['sat18_path'],
-                             help=" (default: '../aslib_data/SAT18-EXP')"
-                             )
-argument_parser.add_argument('--gluhack-path',
-                             type=str,
-                             action='store',
-                             default=argument_default_values['gluhack_path'],
-                             help=" (default: '../aslib_data/GLUHACK-2018')"
-                             )
+argument_parser.add_argument(
+    "--sat18-suffix",
+    type=str,
+    action="store",
+    default=argument_default_values["sat18_suffix"],
+    help=" (default: 'sat18')",
+)
+argument_parser.add_argument(
+    "--dest-suffix",
+    type=str,
+    action="store",
+    default=argument_default_values["dest_suffix"],
+    help=" (default: 'gluhack')",
+)
+argument_parser.add_argument(
+    "--sat18-path",
+    type=str,
+    action="store",
+    default=argument_default_values["sat18_path"],
+    help=" (default: '../aslib_data/SAT18-EXP')",
+)
+argument_parser.add_argument(
+    "--gluhack-path",
+    type=str,
+    action="store",
+    default=argument_default_values["gluhack_path"],
+    help=" (default: '../aslib_data/GLUHACK-2018')",
+)
 parsed_parameters = argument_parser.parse_args()
 
 sat18_suffix: str = parsed_parameters.sat18_suffix
@@ -68,8 +74,7 @@ def list_hacks():
     features = feature_extractor.from_scenario(scenario)
     results = result_extractor.from_scenario(scenario)
 
-    features, results, _ = data_transformer.prepare_dataset(
-        features, results)
+    features, results, _ = data_transformer.prepare_dataset(features, results)
 
     algorithms = list(results[list(features.keys())[0]].keys())
     return algorithms
@@ -83,8 +88,7 @@ def find_glucose():
     features = feature_extractor.from_scenario(scenario)
     results = result_extractor.from_scenario(scenario)
 
-    features, results, _ = data_transformer.prepare_dataset(
-        features, results)
+    features, results, _ = data_transformer.prepare_dataset(features, results)
 
     algorithms = list(results[list(features.keys())[0]].keys())
     hacks = list_hacks()
@@ -96,8 +100,9 @@ def find_glucose():
             indices.append(i)
             if algo == "glucose3.0":
                 glucose = i
-            print(algo, " perf:", sum([results[inst][algo]
-                                       for inst in features.keys()]))
+            print(
+                algo, " perf:", sum([results[inst][algo] for inst in features.keys()])
+            )
 
     return glucose, indices
 

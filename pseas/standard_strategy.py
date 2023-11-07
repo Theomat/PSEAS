@@ -10,7 +10,9 @@ class StandardStrategy(Strategy):
     Base strategy that simply combines instance selection and discrimination without any processing of the data.
     """
 
-    def __init__(self, instance_selection: InstanceSelection, discrimination: Discrimination) -> None:
+    def __init__(
+        self, instance_selection: InstanceSelection, discrimination: Discrimination
+    ) -> None:
         self._instance_selection: InstanceSelection = instance_selection
         self._discrimination: Discrimination = discrimination
 
@@ -31,7 +33,7 @@ class StandardStrategy(Strategy):
 
     def choose_instance(self) -> int:
         return self._instance_selection.choose_instance()
-   
+
     def is_done(self) -> bool:
         return self._discrimination.should_stop()
 
@@ -44,5 +46,7 @@ class StandardStrategy(Strategy):
     def name(self) -> str:
         return self._instance_selection.name() + " + " + self._discrimination.name()
 
-    def clone(self) -> 'StandardStrategy':
-        return StandardStrategy(self._instance_selection.clone(), self._discrimination.clone())
+    def clone(self) -> "StandardStrategy":
+        return StandardStrategy(
+            self._instance_selection.clone(), self._discrimination.clone()
+        )

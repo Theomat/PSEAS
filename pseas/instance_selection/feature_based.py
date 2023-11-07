@@ -46,5 +46,5 @@ class FeatureBased(DistanceBased):
         self._weights: np.ndarray = __find_weights__(features, y)
         super().ready(features=features, perf_matrix=perf_matrix, **kwargs)
 
-    def clone(self) -> 'FeatureBased':
+    def clone(self) -> "FeatureBased":
         return FeatureBased(self._exponent)

@@ -61,7 +61,7 @@ class Strategy(ABC):
         pass
 
     @abstractmethod
-    def clone(self) -> 'Strategy':
+    def clone(self) -> "Strategy":
         """
         Clone this strategy, the cloned strategy has the same parameters but it starts with an empty state (as if no methods were called).
         """

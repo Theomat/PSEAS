@@ -38,6 +38,5 @@ class Discrimination(ABC):
     def name(self) -> str:
         pass
 
-    def clone(self) -> 'Discrimination':
+    def clone(self) -> "Discrimination":
         pass
-

@@ -19,23 +19,29 @@ from concurrent.futures import wait, ALL_COMPLETED
 # Argument parsing.
 # =============================================================================
 import argparse
+
 argument_parser: argparse.ArgumentParser = argparse.ArgumentParser(
-    description="Compute the median log likelihood for each distribution for each dataset.")
+    description="Compute the median log likelihood for each distribution for each dataset."
+)
 
 argument_default_values = {
-	"filename": './dataset_distributions_likelihood.csv',
+    "filename": "./dataset_distributions_likelihood.csv",
 }
-argument_parser.add_argument('-p', '--print-only',
-                             action='store_true',
-                             dest='plot_only',
-                             help="Only print results from file (default: False)"
-                             )
-argument_parser.add_argument('-f', '--filename',
-                             type=str,
-                             action='store',
-                             default=argument_default_values['filename'],
-                             help=" (default: './dataset_distributions_likelihood.csv')"
-                             )
+argument_parser.add_argument(
+    "-p",
+    "--print-only",
+    action="store_true",
+    dest="plot_only",
+    help="Only print results from file (default: False)",
+)
+argument_parser.add_argument(
+    "-f",
+    "--filename",
+    type=str,
+    action="store",
+    default=argument_default_values["filename"],
+    help=" (default: './dataset_distributions_likelihood.csv')",
+)
 parsed_parameters = argument_parser.parse_args()
 
 plot_only: bool = parsed_parameters.plot_only
@@ -51,15 +57,13 @@ datasets = [
     "../aslib_data/SAT20-MAIN",
 ]
 if not plot_only:
-
     # read from ASlib
 
-    distribs = [
-        "cauchy",
-        "levy"
-    ]
+    distribs = ["cauchy", "levy"]
 
-    def __evaluate__(scenario_path: str, distribution: str) -> Tuple[str, str, List[Tuple[float, float]]]:
+    def __evaluate__(
+        scenario_path: str, distribution: str
+    ) -> Tuple[str, str, List[Tuple[float, float]]]:
         scenario = ASlibScenario()
         scenario.read_scenario(scenario_path)
         scenario.check_data(1)
@@ -67,8 +71,7 @@ if not plot_only:
         features = feature_extractor.from_scenario(scenario)
         results = result_extractor.from_scenario(scenario)
 
-        features, results, _ = data_transformer.prepare_dataset(
-            features, results)
+        features, results, _ = data_transformer.prepare_dataset(features, results)
 
         dist: st.rv_continuous = getattr(st, distribution)
         output = []
@@ -86,12 +89,12 @@ if not plot_only:
         "instance": [],
         "distribution": [],
         "pvalue": [],
-        "likelihood": []
+        "likelihood": [],
     }
 
     def callback(future):
         dataset, dist, stats = future.result()
-        dataset_name = dataset[dataset.rfind("/")+1:]
+        dataset_name = dataset[dataset.rfind("/") + 1 :]
         for instance, (pval, lklh) in enumerate(stats):
             df["dataset"].append(dataset_name)
             df["instance"].append(instance)
@@ -119,8 +122,7 @@ df = df.rename(columns={"likelihood": "log-likelihood"})
 df_lklh = df.drop(columns=["instance"])
 
 for dataset in datasets:
-    dataset_name = dataset[dataset.rfind("/")+1:]
+    dataset_name = dataset[dataset.rfind("/") + 1 :]
 
     print("Dataset:", dataset_name)
-    print(df_lklh[df_lklh["dataset"] == dataset_name].groupby(
-        "distribution").median())
+    print(df_lklh[df_lklh["dataset"] == dataset_name].groupby("distribution").median())

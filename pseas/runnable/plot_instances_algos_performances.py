@@ -6,7 +6,12 @@ Plot for each dataset two graphs:
 """
 
 
-from pseas.data import data_transformer, feature_extractor, result_extractor, prior_information
+from pseas.data import (
+    data_transformer,
+    feature_extractor,
+    result_extractor,
+    prior_information,
+)
 from pseas.data.aslib_scenario import ASlibScenario
 
 import numpy as np
@@ -16,7 +21,7 @@ datasets = [
     "../aslib_data/CSP-Minizinc-Time-2016",
     "../aslib_data/BNSL-2016",
     "../aslib_data/SAT18-EXP",
-    "../aslib_data/SAT20-MAIN"
+    "../aslib_data/SAT20-MAIN",
 ]
 
 
@@ -28,14 +33,19 @@ for scenario_path in datasets:
     features = feature_extractor.from_scenario(scenario)
     results = result_extractor.from_scenario(scenario)
 
-    features, results, _ = data_transformer.prepare_dataset(
-        features, results)
+    features, results, _ = data_transformer.prepare_dataset(features, results)
 
     algorithms = list(results[list(features.keys())[0]].keys())
     instances = list(features.keys())
 
-    print("Dataset:", scenario_path, " algos:", len(
-        algorithms), "instances:", len(instances))
+    print(
+        "Dataset:",
+        scenario_path,
+        " algos:",
+        len(algorithms),
+        "instances:",
+        len(instances),
+    )
 
     perf_matrix = prior_information.resultdict2matrix(results, None)[0]
 

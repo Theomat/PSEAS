@@ -12,7 +12,7 @@ class SubsetBaseline(Discrimination):
     - ratio: ]0, 1] fraction of instances to run before reaching 100% confidence.
     """
 
-    def __init__(self, ratio:float) -> None:
+    def __init__(self, ratio: float) -> None:
         super().__init__()
         self._ratio: float = ratio
 
@@ -29,7 +29,8 @@ class SubsetBaseline(Discrimination):
     def feed(self, state: Tuple[List[Optional[float]], List[float]]) -> None:
         self._time: float = sum([x for x in state[0] if x is not None])
         self._is_better: bool = self._time < sum(
-            [t for x, t in zip(state[0], state[1]) if x is not None])
+            [t for x, t in zip(state[0], state[1]) if x is not None]
+        )
 
         todo: int = ceil(len(state[0]) * self._ratio)
         done: int = len([x for x in state[0] if x is not None])
@@ -48,6 +49,5 @@ class SubsetBaseline(Discrimination):
     def name(self) -> str:
         return f"subset {self._ratio * 100:.2f}%"
 
-    def clone(self) -> 'SubsetBaseline':
+    def clone(self) -> "SubsetBaseline":
         return SubsetBaseline(self._ratio)
-

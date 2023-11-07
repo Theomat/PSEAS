@@ -32,46 +32,54 @@ from pseas.instance_selection.feature_based import FeatureBased
 # Argument parsing.
 # =============================================================================
 import argparse
+
 argument_parser: argparse.ArgumentParser = argparse.ArgumentParser(
-    description="Produce run data.")
+    description="Produce run data."
+)
 
 argument_default_values: Dict = {
-	"output_suffix": 'minizinc',
-	"save_every": 5,
-	"max_workers": None,
-	"scenario_path": '../aslib_data/CSP-Minizinc-Time-2016',
-	"par": 2,
+    "output_suffix": "minizinc",
+    "save_every": 5,
+    "max_workers": None,
+    "scenario_path": "../aslib_data/CSP-Minizinc-Time-2016",
+    "par": 2,
 }
-argument_parser.add_argument('-o', '--output-suffix',
-                             type=str,
-                             action='store',
-                             default=argument_default_values['output_suffix'],
-                             help="CSV data filename suffix (default: 'minizinc')"
-                             )
-argument_parser.add_argument('--save-every',
-                             type=int,
-                             action='store',
-                             default=argument_default_values['save_every'],
-                             help="Save data every X time. (default: 5)"
-                             )
-argument_parser.add_argument('--max-workers',
-                             type=int,
-                             action='store',
-                             default=argument_default_values['max_workers'],
-                             help="Max number of processes. (default: None)"
-                             )
-argument_parser.add_argument('--scenario-path',
-                             type=str,
-                             action='store',
-                             default=argument_default_values['scenario_path'],
-                             help=" (default: '../aslib_data/CSP-Minizinc-Time-2016')"
-                             )
-argument_parser.add_argument('--par',
-                             type=int,
-                             action='store',
-                             default=argument_default_values['par'],
-                             help=" (default: 1)"
-                             )
+argument_parser.add_argument(
+    "-o",
+    "--output-suffix",
+    type=str,
+    action="store",
+    default=argument_default_values["output_suffix"],
+    help="CSV data filename suffix (default: 'minizinc')",
+)
+argument_parser.add_argument(
+    "--save-every",
+    type=int,
+    action="store",
+    default=argument_default_values["save_every"],
+    help="Save data every X time. (default: 5)",
+)
+argument_parser.add_argument(
+    "--max-workers",
+    type=int,
+    action="store",
+    default=argument_default_values["max_workers"],
+    help="Max number of processes. (default: None)",
+)
+argument_parser.add_argument(
+    "--scenario-path",
+    type=str,
+    action="store",
+    default=argument_default_values["scenario_path"],
+    help=" (default: '../aslib_data/CSP-Minizinc-Time-2016')",
+)
+argument_parser.add_argument(
+    "--par",
+    type=int,
+    action="store",
+    default=argument_default_values["par"],
+    help=" (default: 1)",
+)
 parsed_parameters = argument_parser.parse_args()
 
 output_suffix: str = parsed_parameters.output_suffix
@@ -87,9 +95,10 @@ par: int = parsed_parameters.par
 # Start Strategy Definition
 # =============================================================================
 
+
 # Must not be a lambda function to be picklable
 def norm2_distance(x: np.ndarray, y: np.ndarray) -> float:
-    return np.linalg.norm(x-y)
+    return np.linalg.norm(x - y)
 
 
 discriminators = [
@@ -122,10 +131,8 @@ if os.path.exists(f"./runs{output_suffix}.csv"):
     original_df_general = pd.read_csv(f"./runs_{output_suffix}.csv")
     original_df_general = original_df_general.drop("Unnamed: 0", axis=1)
 
-    original_df_detailed = pd.read_csv(
-        f"./detailed_runs_{output_suffix}.csv")
-    original_df_detailed = original_df_detailed.drop(
-        "Unnamed: 0", axis=1)
+    original_df_detailed = pd.read_csv(f"./detailed_runs_{output_suffix}.csv")
+    original_df_detailed = original_df_detailed.drop("Unnamed: 0", axis=1)
     print("Found existing data, continuing acquisition from save.")
 
 
@@ -217,7 +224,7 @@ def run(scenario_path, max_workers, par):
     print()
     env = TestEnv(scenario_path)
     n_algos = env.n_algorithms
-    dataset_name: str = scenario_path[scenario_path.rfind("/")+1:]
+    dataset_name: str = scenario_path[scenario_path.strip("/").rfind("/") + 1 :]
     # Generate strategies
     total: int = 0
     strategies: List[Tuple[Strategy, Dict]] = []
@@ -231,16 +238,25 @@ def run(scenario_path, max_workers, par):
                 }
                 total += n_algos
                 if original_df_general is not None:
-                    tmp = original_df_general[original_df_general["strategy"] == strat.name(
-                    )]
+                    tmp = original_df_general[
+                        original_df_general["strategy"] == strat.name()
+                    ]
                     tmp = tmp[tmp["dataset"] == dataset_name]
-                    dico["a_new_done"] = np.unique(
-                        tmp["a_new"].values).tolist()
+                    dico["a_new_done"] = np.unique(tmp["a_new"].values).tolist()
                     total -= len(dico["a_new_done"])
                 strategies.append([strat, dico])
     pbar.total += total
-    compare(scenario_path, strategies, "cauchy", callback, n_algorithms=n_algos,
-            verbose=False, par_penalty=par, max_workers=max_workers, close_pool=True)
+    compare(
+        scenario_path,
+        strategies,
+        "cauchy",
+        callback,
+        n_algorithms=n_algos,
+        verbose=False,
+        par_penalty=par,
+        max_workers=max_workers,
+        close_pool=True,
+    )
 
 
 run(scenario_path, max_workers, par)

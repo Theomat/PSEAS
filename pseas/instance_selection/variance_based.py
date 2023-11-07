@@ -25,5 +25,5 @@ class VarianceBased(InstanceSelection):
     def name(self) -> str:
         return "variance-based"
 
-    def clone(self) -> 'VarianceBased':
+    def clone(self) -> "VarianceBased":
         return VarianceBased()

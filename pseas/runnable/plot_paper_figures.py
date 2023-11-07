@@ -23,23 +23,25 @@ import seaborn as sns
 # Argument parsing.
 # =============================================================================
 import argparse
+
 argument_parser: argparse.ArgumentParser = argparse.ArgumentParser(
-    description="Plot figures based on run data.")
+    description="Plot figures based on run data."
+)
 
 argument_default_values = {
-	"suffix": 'minizinc',
+    "suffix": "minizinc",
 }
-argument_parser.add_argument('-s', '--suffix',
-                             type=str,
-                             action='store',
-                             default=argument_default_values['suffix'],
-                             help="File suffix used in produce_run_data (default: 'minizinc')"
-                             )
-argument_parser.add_argument('-l', '--legend',
-                             action='store_true',
-                             dest='legend',
-                             help=" (default: False)"
-                             )
+argument_parser.add_argument(
+    "-s",
+    "--suffix",
+    type=str,
+    action="store",
+    default=argument_default_values["suffix"],
+    help="File suffix used in produce_run_data (default: 'minizinc')",
+)
+argument_parser.add_argument(
+    "-l", "--legend", action="store_true", dest="legend", help=" (default: False)"
+)
 parsed_parameters = argument_parser.parse_args()
 
 suffix: str = parsed_parameters.suffix
@@ -55,9 +57,9 @@ axis_font_size = 15
 legend_font_size = 15
 # Data --------------------------------------------
 # Paper Figures
-general_perf: bool = False
-general_perf_min_accuracy: float = 75
-ranking_perf: bool = True
+general_perf: bool = True
+general_perf_min_accuracy: float = 50
+ranking_perf: bool = False
 ranking_perf_min_accuracy: float = 75
 # Other Figures
 par_penalty: bool = False
@@ -68,23 +70,22 @@ bias: bool = False
 
 # Detailed data ------------------------------------
 # Paper Figures
-accuracy_wrt_time: bool = False
-correct_wrt_confidence: bool = False
+accuracy_wrt_time: bool = True
+correct_wrt_confidence: bool = True
 instances_wrt_time: bool = False
 # Other Figures
 confidence_wrt_time: bool = False
 sns.set_style("whitegrid")
-matplotlib.rcParams.update({'font.size': 14})
-matplotlib.rcParams['mathtext.fontset'] = 'custom'
-matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
-matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
-matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
-matplotlib.rcParams['mathtext.fontset'] = 'cm'
-matplotlib.rcParams['font.family'] = 'STIXGeneral'
+matplotlib.rcParams.update({"font.size": 14})
+matplotlib.rcParams["mathtext.fontset"] = "custom"
+matplotlib.rcParams["mathtext.rm"] = "Bitstream Vera Sans"
+matplotlib.rcParams["mathtext.it"] = "Bitstream Vera Sans:italic"
+matplotlib.rcParams["mathtext.bf"] = "Bitstream Vera Sans:bold"
+matplotlib.rcParams["mathtext.fontset"] = "cm"
+matplotlib.rcParams["font.family"] = "STIXGeneral"
 # =============================================================================
 # End Tunable Parameters
 # =============================================================================
-
 
 
 def __rename_strategies__(df: pd.DataFrame) -> pd.DataFrame:
@@ -92,41 +93,43 @@ def __rename_strategies__(df: pd.DataFrame) -> pd.DataFrame:
     df = df[~df["strategy"].str.contains("Norm")].copy(deep=False)
     # Rename selection component
     df["strategy"] = df["strategy"].str.replace(
-        "Var./Time", "variance-based", regex=False)
+        "Var./Time", "variance-based", regex=False
+    )
+    df["strategy"] = df["strategy"].str.replace("Ranking", "ranking-based", regex=False)
     df["strategy"] = df["strategy"].str.replace(
-        "Ranking", "ranking-based", regex=False)
+        ".*-Discr\\./Time", "discrimination-based", regex=True
+    )
     df["strategy"] = df["strategy"].str.replace(
-        ".*-Discr\\./Time", "discrimination-based", regex=True)
+        "AutoDistance-.", "feature-based", regex=True
+    )
     df["strategy"] = df["strategy"].str.replace(
-        "AutoDistance-.", "feature-based", regex=True)
-    df["strategy"] = df["strategy"].str.replace(
-        "Info. over Decision/Time", "information-based", regex=False)
-    df["strategy"] = df["strategy"].str.replace(
-        "Random", "random", regex=False)
+        "Info. over Decision/Time", "information-based", regex=False
+    )
+    df["strategy"] = df["strategy"].str.replace("Random", "random", regex=False)
 
     # Rename discrimination component
     df["strategy"] = df["strategy"].str.replace(" 10100%", "", regex=False)
     df["strategy"] = df["strategy"].str.replace(".00%", "%", regex=False)
     df["strategy"] = df["strategy"].str.replace(
-        "Cauchy Constr.[0, 10]", "distribution-based", regex=False)
+        "Cauchy Constr.[0, 10]", "distribution-based", regex=False
+    )
     df["strategy"] = df["strategy"].str.replace(r"\+ C$", "+ TC", regex=True)
-    df["strategy"] = df["strategy"].str.replace(
-        "Subset", "subset", regex=False)
+    df["strategy"] = df["strategy"].str.replace("Subset", "subset", regex=False)
 
-    df["selection"] = df["strategy"].str.extract(r'^([^+]*) \+ .*')
-    df["discrimination"] = df["strategy"].str.extract(r'^[^+]* \+ (.*)')
-    df["discrimination"] = df["discrimination"].str.replace(
-        " + TC", "", regex=False)
+    df["selection"] = df["strategy"].str.extract(r"^([^+]*) \+ .*")
+    df["discrimination"] = df["strategy"].str.extract(r"^[^+]* \+ (.*)")
+    df["discrimination"] = df["discrimination"].str.replace(" + TC", "", regex=False)
     df["timeout_correction"] = df["strategy"].str.endswith("+ TC")
     return df
 
 
 def __filter_best_strategies__(df: pd.DataFrame) -> pd.DataFrame:
     # Remove all that don't have timeout correction
-    df = df[df["timeout_correction"] == True]
+    # df = df[df["timeout_correction"] == True]
     df = df[~df["selection"].str.contains("ranking")]
-    df["baseline"] = df["selection"].str.contains(
-        "random") | df["discrimination"].str.contains("subset")
+    df["baseline"] = df["selection"].str.contains("random") | df[
+        "discrimination"
+    ].str.contains("subset")
     return df
 
 
@@ -135,7 +138,9 @@ def __select_by_par__(df: pd.DataFrame, dataset) -> pd.DataFrame:
     return df[df["par"] == par]
 
 
-def __name_filter__(df: pd.DataFrame, name_contains: str, apply_filter: Optional[bool]) -> pd.DataFrame:
+def __name_filter__(
+    df: pd.DataFrame, name_contains: str, apply_filter: Optional[bool]
+) -> pd.DataFrame:
     if apply_filter is not None:
         filter = df["strategy"].str.contains(name_contains)
         if not apply_filter:
@@ -144,13 +149,14 @@ def __name_filter__(df: pd.DataFrame, name_contains: str, apply_filter: Optional
     return df
 
 
-def __filter_strategies_by_selection_method__(df: pd.DataFrame,
-                                              baseline: Optional[bool] = None,
-                                              discrimination_based: Optional[bool] = None,
-                                              distribution_based: Optional[bool] = None,
-                                              information_based: Optional[bool] = None,
-                                              feature_based: Optional[bool] = None,
-                                              ) -> pd.DataFrame:
+def __filter_strategies_by_selection_method__(
+    df: pd.DataFrame,
+    baseline: Optional[bool] = None,
+    discrimination_based: Optional[bool] = None,
+    distribution_based: Optional[bool] = None,
+    information_based: Optional[bool] = None,
+    feature_based: Optional[bool] = None,
+) -> pd.DataFrame:
     df = __name_filter__(df, "random", baseline)
     df = __name_filter__(df, "discrimination-based", discrimination_based)
     df = __name_filter__(df, "variance-based", distribution_based)
@@ -159,12 +165,13 @@ def __filter_strategies_by_selection_method__(df: pd.DataFrame,
     return df
 
 
-def __filter_strategies_by_discriminator__(df: pd.DataFrame,
-                                           baseline: Optional[bool] = None,
-                                           wilcoxon: Optional[bool] = None,
-                                           full_distribution: Optional[bool] = None,
-                                           timeout_correction: Optional[bool] = None
-                                           ) -> pd.DataFrame:
+def __filter_strategies_by_discriminator__(
+    df: pd.DataFrame,
+    baseline: Optional[bool] = None,
+    wilcoxon: Optional[bool] = None,
+    full_distribution: Optional[bool] = None,
+    timeout_correction: Optional[bool] = None,
+) -> pd.DataFrame:
     df = __name_filter__(df, "subset", baseline)
     df = __name_filter__(df, "Wilcoxon", wilcoxon)
     df = __name_filter__(df, "distribution-based", full_distribution)
@@ -231,29 +238,35 @@ def plot_general_performance(df, dataset):
     df = __filter_best_strategies__(df)
     # ==================================================
     # Take only interesting part
-    df = df[["time", "correct", "selection", "discrimination"]]
+    n = "y_pred"
+    df = df[["time", n, "selection", "discrimination"]]
 
     # Take mean over runs
     df = df.groupby(["selection", "discrimination"])
-    df = df.agg({
-        "time": "median",
-        "correct": "mean"
-    })
-    print(df)
+    df = df.agg({"time": "mean", n: "mean"})
     df["time"] *= 100
-    df["correct"] *= 100
+    df[n] *= 100
 
     # Compute Pareto Front
     X = df["time"].to_numpy()
-    Y = df["correct"].to_numpy()
+    Y = df[n].to_numpy()
     x, y = __pareto_front__(X, Y)
     print("Pareto front:")
     for px, py in zip(x, y):
         print(f"\tTime:{px:.4f}% Correct:{py:.2f}%")
 
-    g = sns.relplot(x="time", y="correct", hue="selection", style="discrimination", data=df, s=marker_size, legend=legend,
-                    markers=["X", "d", "."], linewidth=1)
-    plt.plot(x, y, 'k--', label="Pareto front")
+    g = sns.relplot(
+        x="time",
+        y=n,
+        style="selection",
+        hue="discrimination",
+        data=df,
+        s=marker_size,
+        legend=legend,
+        markers=["X", "d", ".", "P"],
+        linewidth=1,
+    )
+    plt.plot(x, y, "k--", label="Pareto front")
     plt.xlim(0, 100)
     plt.ylim(general_perf_min_accuracy, 101)
     plt.xlabel("% of time", fontsize=15)
@@ -262,7 +275,7 @@ def plot_general_performance(df, dataset):
     if legend:
         plt.setp(g.legend.get_texts(), fontsize=legend_font_size)
         plt.setp(g.legend.get_title(), fontsize=legend_font_size)
-        figlegend = plt.figure(figsize=(2.51, 3.26))
+        figlegend = plt.figure(figsize=(7, 5))
 
         patches, labels = g.axes[0, 0].get_legend_handles_labels()
         # Get rid of the legend on the first plot, so it is only drawn on the separate figure
@@ -275,10 +288,11 @@ def plot_general_performance(df, dataset):
         # patches.insert(7, path)
         # labels.insert(7, " ")
 
-        figlegend.legend(handles=patches, labels=labels, ncol=1)
-        figlegend.savefig('legend.pdf')
+        figlegend.legend(handles=patches, labels=labels, ncol=2)
+        figlegend.savefig("legend.pdf")
         print("Produced legend.pdf")
         plt.close(figlegend)
+    plt.legend()
     plt.tight_layout()
     plt.show()
 
@@ -288,7 +302,7 @@ def plot_ranking_performance(df, dataset):
     # If data is missing for a dataset skip it
     if df.shape[0] == 0:
         return
-    df = df[df["timeout_correction"] == True]
+    # df = df[df["timeout_correction"] == True]
     df["correct"] = df["y_pred"] == df["y_true"]
 
     # Take only interesting part
@@ -296,10 +310,7 @@ def plot_ranking_performance(df, dataset):
 
     # Take mean over runs
     df = df.groupby(["selection", "discrimination"])
-    df = df.agg({
-        "time": "median",
-        "correct": "mean"
-    }).reset_index()
+    df = df.agg({"time": "median", "correct": "mean"}).reset_index()
     df["time"] *= 100
     df["correct"] *= 100
 
@@ -312,9 +323,17 @@ def plot_ranking_performance(df, dataset):
 
     df = df[df["selection"].str.contains("ranking")]
 
-    g = sns.relplot(x="time", y="correct", style="discrimination", data=df, s=marker_size, legend=legend,
-                    markers=["X", "d", "."], linewidth=1)
-    plt.plot(x, y, 'k--', label="Pareto front")
+    g = sns.relplot(
+        x="time",
+        y="correct",
+        style="discrimination",
+        data=df,
+        s=marker_size,
+        legend=legend,
+        markers=["X", "d", ".", "+"],
+        linewidth=1,
+    )
+    plt.plot(x, y, "k--", label="Pareto front")
     plt.xlim(0, 100)
     plt.ylim(ranking_perf_min_accuracy, 101)
     plt.xlabel("% of time", fontsize=15)
@@ -324,14 +343,14 @@ def plot_ranking_performance(df, dataset):
 
         plt.setp(g.legend.get_texts(), fontsize=legend_font_size)
         plt.setp(g.legend.get_title(), fontsize=legend_font_size)
-        figlegend = plt.figure(figsize=(2.41, 1.46))
+        figlegend = plt.figure(figsize=(10, 5))
 
         patches, labels = g.axes[0, 0].get_legend_handles_labels()
         # Get rid of the legend on the first plot, so it is only drawn on the separate figure
         g.legend.remove()
 
         figlegend.legend(handles=patches, labels=labels, ncol=1)
-        figlegend.savefig('legend.pdf')
+        figlegend.savefig("legend.pdf")
         print("Produced legend.pdf")
         plt.close(figlegend)
     plt.tight_layout()
@@ -351,17 +370,13 @@ def print_table_timeout_correction_improvement(df, dataset):
     # ==================================================
     # Remove ranking
     df = df[~df["selection"].str.contains("ranking")]
-    df = __filter_strategies_by_selection_method__(
-        df, baseline=False)
+    df = __filter_strategies_by_selection_method__(df, baseline=False)
     # ==================================================
     df["correct"] *= 100
     df["time"] *= 100
     df = df[["selection", "timeout_correction", "correct", "time"]]
     df: pd.DataFrame = df.groupby(["selection", "timeout_correction"])
-    df = df.agg({
-        "time": "median",
-        "correct": "mean"
-    })
+    df = df.agg({"time": "median", "correct": "mean"})
     print(df)
 
 
@@ -384,14 +399,22 @@ def print_table_bias(df: pd.DataFrame, dataset):
     df["correct"] *= 100
     df_aold = df[df["a_inc_is_better"] == True]
     df_anew = df[df["a_inc_is_better"] == False]
-    out = df_aold.groupby(["selection", "discrimination"]).agg(
-        {"time": "median", "correct": "mean"}).reset_index()
+    out = (
+        df_aold.groupby(["selection", "discrimination"])
+        .agg({"time": "median", "correct": "mean"})
+        .reset_index()
+    )
     out = out.rename(
-        columns={"time": "time a_inc better", "correct": "correct a_inc better"})
-    out = out.merge(df_anew.groupby(["selection", "discrimination"]).agg(
-        {"time": "median", "correct": "mean"}).reset_index())
+        columns={"time": "time a_inc better", "correct": "correct a_inc better"}
+    )
+    out = out.merge(
+        df_anew.groupby(["selection", "discrimination"])
+        .agg({"time": "median", "correct": "mean"})
+        .reset_index()
+    )
     out = out.rename(
-        columns={"time": "time a_ch better", "correct": "correct a_ch better"})
+        columns={"time": "time a_ch better", "correct": "correct a_ch better"}
+    )
     print(out)
 
 
@@ -411,14 +434,18 @@ def plot_par_penalty(df: pd.DataFrame, dataset):
     df = df[["strategy", "time", "correct", "par"]]
 
     df = df.groupby(["strategy", "par"])
-    df = df.agg({
-        "time": "median",
-        "correct": "mean"
-    })
+    df = df.agg({"time": "median", "correct": "mean"})
     df["time"] *= 100
     df["correct"] *= 100
-    sns.relplot(x="time", y="correct", hue="strategy",
-                style="par", data=df, s=marker_size, legend=legend)
+    sns.relplot(
+        x="time",
+        y="correct",
+        hue="strategy",
+        style="par",
+        data=df,
+        s=marker_size,
+        legend=legend,
+    )
     plt.xlabel("% of time", fontsize=axis_font_size)
     plt.ylabel("% of accuracy", fontsize=axis_font_size)
     plt.xlim(0, 100)
@@ -434,66 +461,42 @@ def plot_correct_wrt_confidence(df: pd.DataFrame, dataset):
     if df.shape[0] == 0:
         return
 
-
     # Remove Ranking
     df = df[~df["selection"].str.contains("ranking")]
 
-    df = __filter_strategies_by_discriminator__(
-        df, full_distribution=True, timeout_correction=True)
+    df = __filter_strategies_by_discriminator__(df)
 
     # Take mean performance
-    df = df.groupby(["selection", "time"]).mean().reset_index()
+    df = df.groupby(["discrimination", "time"])
+    df = df.agg({"prediction": "mean", "confidence": "mean"})#.mean(numeric_only=True).reset_index()
     df["prediction"] *= 100
 
-    g = sns.relplot(y="confidence", x="prediction",
-                    hue="selection", data=df, legend=legend, marker=".")
+    g = sns.relplot(
+        y="confidence",
+        x="prediction",
+        hue="discrimination",
+        data=df,
+        legend=legend,
+        marker=".",
+    )
     plt.plot(list(range(70, 101)), list(range(70, 101)), "black")
     plt.xlabel("% of accuracy", fontsize=axis_font_size)
     plt.ylabel("% of confidence", fontsize=axis_font_size)
     plt.xlim(70, 100)
     plt.ylim(70, 100)
-    if legend:
+    # if legend:
+    #     plt.setp(g.legend.get_texts(), fontsize=legend_font_size)
+    #     plt.setp(g.legend.get_title(), fontsize=legend_font_size)
+    #     figlegend = plt.figure(figsize=(2.61, 1.59))
 
-        plt.setp(g.legend.get_texts(), fontsize=legend_font_size)
-        plt.setp(g.legend.get_title(), fontsize=legend_font_size)
-        figlegend = plt.figure(figsize=(2.61, 1.59))
+    #     patches, labels = g.axes[0, 0].get_legend_handles_labels()
+    #     # Get rid of the legend on the first plot, so it is only drawn on the separate figure
+    #     g.legend.remove()
 
-        patches, labels = g.axes[0, 0].get_legend_handles_labels()
-        # Get rid of the legend on the first plot, so it is only drawn on the separate figure
-        g.legend.remove()
-
-        figlegend.legend(handles=patches, labels=labels, ncol=1)
-        figlegend.savefig('legend.pdf')
-        print("Produced legend.pdf")
-        plt.close(figlegend)
-    plt.tight_layout()
-    plt.show()
-
-
-def plot_confidence_wrt_time(df: pd.DataFrame, dataset):
-    # If data is missing for a dataset skip it
-    if df.shape[0] == 0:
-        return
-
-
-    # Remove ranking
-    df = df[~df["selection"].str.contains("ranking")]
-
-    df = __filter_strategies_by_discriminator__(
-        df, full_distribution=True, timeout_correction=True)
-
-    # Take mean performance
-    df = df.groupby(["selection", "time"]).mean().reset_index()
-    df["prediction"] *= 100
-
-    sns.lineplot(x="time", y="confidence",
-                 hue="selection", data=df, legend=legend)
-    plt.xlabel("% of time", fontsize=axis_font_size)
-    plt.ylabel("% of confidence", fontsize=axis_font_size)
-    plt.xlim(0, 100)
-    plt.ylim(75, 100)
-    if legend:
-        plt.legend(fontsize=legend_font_size)
+    #     figlegend.legend(handles=patches, labels=labels, ncol=1)
+    #     figlegend.savefig("legend.pdf")
+    #     print("Produced legend.pdf")
+    #     plt.close(figlegend)
     plt.tight_layout()
     plt.show()
 
@@ -507,14 +510,14 @@ def plot_instances_wrt_time(df: pd.DataFrame, dataset):
     df = df[~df["selection"].str.contains("ranking")]
 
     df = __filter_strategies_by_discriminator__(
-        df, full_distribution=True, timeout_correction=True)
+        df, full_distribution=True, timeout_correction=True
+    )
     # Remove Norm
     df = df[~df["selection"].str.contains("Norm")]
     # Take mean performance
     df = df.groupby(["selection", "time"]).mean().reset_index()
 
-    g = sns.lineplot(x="time", y="instances",
-                 hue="selection", data=df, legend=legend)
+    g = sns.lineplot(x="time", y="instances", hue="selection", data=df, legend=legend)
     plt.xlim(0, 100)
     plt.ylim(bottom=0, top=np.max(df["instances"].values))
     plt.xlabel("% of time", fontsize=axis_font_size)
@@ -529,7 +532,7 @@ def plot_instances_wrt_time(df: pd.DataFrame, dataset):
         g.get_legend().remove()
 
         figlegend.legend(handles=patches, labels=labels, ncol=1)
-        figlegend.savefig('legend.pdf')
+        figlegend.savefig("legend.pdf")
         print("Produced legend.pdf")
         plt.close(figlegend)
     plt.tight_layout()
@@ -545,13 +548,13 @@ def plot_confidence_wrt_time(df: pd.DataFrame, dataset):
     df = df[~df["selection"].str.contains("ranking")]
 
     df = __filter_strategies_by_discriminator__(
-        df, full_distribution=True, timeout_correction=True)
+        df, full_distribution=True, timeout_correction=True
+    )
 
     # Take mean performance
     df = df.groupby(["selection", "time"]).mean().reset_index()
 
-    g = sns.lineplot(x="time", y="confidence",
-                 hue="selection", data=df, legend=legend)
+    g = sns.lineplot(x="time", y="confidence", hue="selection", data=df, legend=legend)
     plt.xlabel("% of time", fontsize=axis_font_size)
     plt.ylabel("% of confidence", fontsize=axis_font_size)
     plt.xlim(0, 100)
@@ -565,7 +568,7 @@ def plot_confidence_wrt_time(df: pd.DataFrame, dataset):
         # Get rid of the legend on the first plot, so it is only drawn on the separate figure
         g.get_legend().remove()
         figlegend.legend(handles=patches, labels=labels, ncol=1)
-        figlegend.savefig('legend.pdf')
+        figlegend.savefig("legend.pdf")
         print("Produced legend.pdf")
         plt.close(figlegend)
     plt.tight_layout()
@@ -581,20 +584,27 @@ def plot_correct_wrt_time(df: pd.DataFrame, dataset):
     # Remove subset
     df = df[~df["discrimination"].str.contains("subset")]
     # Take mean performance
-    df = df.groupby(["selection", "discrimination", "time"]
-                    ).mean().reset_index()
+    df = df.groupby(by=["selection", "discrimination", "time"])
+    df = df.agg({"prediction": "mean", "time": "mean"})
+    # df = df.mean(numeric_only=True).reset_index()
     df["prediction"] *= 100
 
-    g = sns.lineplot(x="time", y="prediction",
-                 hue="selection", style="discrimination", data=df, legend=legend, linewidth=1)
+    g = sns.lineplot(
+        x="time",
+        y="prediction",
+        style="selection",
+        hue="discrimination",
+        data=df,
+        legend=legend,
+        linewidth=1,
+    )
 
     # plt.xlabel("% of instances", fontsize=axis_font_size)
     plt.xlabel("% of time", fontsize=axis_font_size)
     plt.ylabel("% of accuracy", fontsize=axis_font_size)
     plt.xlim(0, 100)
     plt.ylim(50, 100)
-    plt.gca().set_aspect(2, 'box')
-
+    plt.gca().set_aspect(2, "box")
 
     if legend:
         plt.setp(g.get_legend().get_texts(), fontsize=legend_font_size)
@@ -613,18 +623,20 @@ def plot_correct_wrt_time(df: pd.DataFrame, dataset):
         # labels.insert(7, " ")
 
         figlegend.legend(handles=patches, labels=labels, ncol=1)
-        figlegend.savefig('legend.pdf')
+        figlegend.savefig("legend.pdf")
         print("Produced legend.pdf")
         plt.close(figlegend)
     plt.tight_layout()
-    plt.savefig("correct_wrt_time.pdf", bbox_inches='tight')
+    plt.legend()
+    plt.savefig("correct_wrt_time.pdf", bbox_inches="tight")
     print("Paper ready figure was saved as correct_wrt_time.pdf.")
     plt.show()
 
 
-general_df = pd.read_csv(f"./guess_wrt_time_{suffix}.csv")
+general_df = pd.read_csv(f"./runs_{suffix}.csv")
 general_df = general_df.drop("Unnamed: 0", axis=1)
 for scenario in np.unique(general_df["dataset"].values).tolist():
+    print("SCENARIO:", scenario)
     general_df = general_df[general_df["dataset"].str.contains(scenario)]
     general_df = __rename_strategies__(general_df)
     dataset = [scenario, 1]
@@ -639,7 +651,7 @@ for scenario in np.unique(general_df["dataset"].values).tolist():
     if par_penalty:
         plot_par_penalty(general_df, dataset)
     del general_df  # Free memory
-    detailed_df = pd.read_csv(f"./detailed_guess_wrt_time_{suffix}.csv")
+    detailed_df = pd.read_csv(f"./detailed_runs_{suffix}.csv")
     detailed_df = detailed_df.drop("Unnamed: 0", axis=1)
     detailed_df = detailed_df[detailed_df["dataset"].str.contains(scenario)]
     detailed_df = __rename_strategies__(detailed_df)

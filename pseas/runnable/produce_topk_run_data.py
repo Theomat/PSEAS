@@ -33,53 +33,64 @@ from pseas.instance_selection.feature_based import FeatureBased
 # Argument parsing.
 # =============================================================================
 import argparse
+
+from pseas.test_env import TestEnv
+
 argument_parser: argparse.ArgumentParser = argparse.ArgumentParser(
-    description="Produce run data.")
+    description="Produce run data."
+)
 
 argument_default_values: Dict = {
-	"output_suffix": 'minizinc',
-	"save_every": 5,
-	"max_workers": None,
-	"scenario_path": '../aslib_data/CSP-Minizinc-Time-2016',
-	"par": 2,
-    "topk": 10
+    "output_suffix": "minizinc",
+    "save_every": 5,
+    "max_workers": None,
+    "scenario_path": "../aslib_data/CSP-Minizinc-Time-2016",
+    "par": 2,
+    "topk": 10,
 }
-argument_parser.add_argument('-o', '--output-suffix',
-                             type=str,
-                             action='store',
-                             default=argument_default_values['output_suffix'],
-                             help="CSV data filename suffix (default: 'minizinc')"
-                             )
-argument_parser.add_argument('--save-every',
-                             type=int,
-                             action='store',
-                             default=argument_default_values['save_every'],
-                             help="Save data every X time. (default: 5)"
-                             )
-argument_parser.add_argument('--top',
-                             type=int,
-                             action='store',
-                             default=argument_default_values['topk'],
-                             help="Top solvers to consider (default: 10)"
-                             )
-argument_parser.add_argument('--max-workers',
-                             type=int,
-                             action='store',
-                             default=argument_default_values['max_workers'],
-                             help="Max number of processes. (default: None)"
-                             )
-argument_parser.add_argument('--scenario-path',
-                             type=str,
-                             action='store',
-                             default=argument_default_values['scenario_path'],
-                             help=" (default: '../aslib_data/CSP-Minizinc-Time-2016')"
-                             )
-argument_parser.add_argument('--par',
-                             type=int,
-                             action='store',
-                             default=argument_default_values['par'],
-                             help=" (default: 1)"
-                             )
+argument_parser.add_argument(
+    "-o",
+    "--output-suffix",
+    type=str,
+    action="store",
+    default=argument_default_values["output_suffix"],
+    help="CSV data filename suffix (default: 'minizinc')",
+)
+argument_parser.add_argument(
+    "--save-every",
+    type=int,
+    action="store",
+    default=argument_default_values["save_every"],
+    help="Save data every X time. (default: 5)",
+)
+argument_parser.add_argument(
+    "--top",
+    type=int,
+    action="store",
+    default=argument_default_values["topk"],
+    help="Top solvers to consider (default: 10)",
+)
+argument_parser.add_argument(
+    "--max-workers",
+    type=int,
+    action="store",
+    default=argument_default_values["max_workers"],
+    help="Max number of processes. (default: None)",
+)
+argument_parser.add_argument(
+    "--scenario-path",
+    type=str,
+    action="store",
+    default=argument_default_values["scenario_path"],
+    help=" (default: '../aslib_data/CSP-Minizinc-Time-2016')",
+)
+argument_parser.add_argument(
+    "--par",
+    type=int,
+    action="store",
+    default=argument_default_values["par"],
+    help=" (default: 1)",
+)
 parsed_parameters = argument_parser.parse_args()
 
 output_suffix: str = parsed_parameters.output_suffix
@@ -93,17 +104,18 @@ top_k: int = parsed_parameters.top_k
 # =============================================================================
 
 # Must not be a lambda function to be picklable
-general_filename: str = f"./runs_top{top_k}_{suffix}.csv"
-detailed_filename: str = f"./detailed_runs_top{top_k}_{suffix}.csv"
+general_filename: str = f"./runs_top{top_k}_{output_suffix}.csv"
+detailed_filename: str = f"./detailed_runs_top{top_k}_{output_suffix}.csv"
+
 
 def norm2_distance(x: np.ndarray, y: np.ndarray) -> float:
-    return np.linalg.norm(x-y)
+    return np.linalg.norm(x - y)
 
 
 discriminators = [
     lambda: DistributionBased("cauchy", confidence=101),
     lambda: Wilcoxon(confidence=101),
-    lambda: SubsetBaseline(.2)
+    lambda: SubsetBaseline(0.2),
 ]
 selectors = [
     lambda: RandomBaseline(0),
@@ -120,24 +132,27 @@ strategy_makers = [
     lambda i, d: CorrectedTimeoutStrategy(i, d, seed=0)
 ]
 
-
-def compute_topk(scenario_path, topk) -> List[int]:
-    scenario= ASlibScenario()
+def compute_after_topk(scenario_path, topk) -> List[int]:
+    scenario = ASlibScenario()
     scenario.read_scenario(scenario_path)
     scenario.check_data(1)
 
-    features= feature_extractor.from_scenario(scenario)
-    results= result_extractor.from_scenario(scenario)
+    features = feature_extractor.from_scenario(scenario)
+    results = result_extractor.from_scenario(scenario)
 
-    features, results, _= data_transformer.prepare_dataset(
-        features, results)
+    features, results, _ = data_transformer.prepare_dataset(features, results)
 
-    algorithms= list(results[list(features.keys())[0]].keys())
-    instances= list(features.keys())
+    algorithms = list(results[list(features.keys())[0]].keys())
+    instances = list(features.keys())
 
-    perf_algos = np.array([sum([results[instance][algo]
-                                for instance in instances]) for algo in algorithms])
+    perf_algos = np.array(
+        [
+            sum([results[instance][algo] for instance in instances])
+            for algo in algorithms
+        ]
+    )
     return np.argsort(perf_algos)[topk:].tolist()
+
 
 # Check if file already exists
 original_df_general: Optional[pd.DataFrame] = None
@@ -147,8 +162,7 @@ if os.path.exists(general_filename):
     original_df_general = original_df_general.drop("Unnamed: 0", axis=1)
 
     original_df_detailed = pd.read_csv(detailed_filename)
-    original_df_detailed = original_df_detailed.drop(
-        "Unnamed: 0", axis=1)
+    original_df_detailed = original_df_detailed.drop("Unnamed: 0", axis=1)
     print("Found existing data, continuing acquisition from save.")
 
 
@@ -179,16 +193,18 @@ df_detailed = {
 }
 
 pbar = tqdm(total=0)
-removed_algos: List[int] = compute_topk(datasets[0][0], top_k)
-
+removed_algorithms: List[int] = compute_after_topk(scenario_path, top_k)
+print("Removed algos:", removed_algorithms)
 
 def convert(x: int, n_algos: int) -> int:
     allowed_count = -1
     for i in range(n_algos):
-        if i not in removed_algos:
+        if i not in removed_algorithms:
             allowed_count += 1
             if allowed_count == x:
                 return i
+    assert False, "Prout"
+
 
 def callback(future):
     pbar.update(1)
@@ -245,10 +261,13 @@ def callback(future):
             df_tmp = original_df_general.append(df_tmp)
         df_tmp.to_csv(general_filename)
 
-for index, dataset_info in enumerate(datasets):
-    close_pool: bool = index + 1 == len(datasets)
-    dataset, par_penalty, max_workers = dataset_info
-    dataset_name: str = dataset[dataset.rfind("/")+1:]
+
+
+
+def run(scenario_path, max_workers, par):
+    print()
+    env = TestEnv(scenario_path)
+    dataset_name: str = scenario_path[scenario_path.strip("/").rfind("/") + 1 :]
     # Generate strategies
     total: int = 0
     strategies: List[Tuple[Strategy, Dict]] = []
@@ -261,18 +280,31 @@ for index, dataset_info in enumerate(datasets):
                     "dataset": dataset_name,
                 }
                 total += top_k
+
                 if original_df_general is not None:
-                    tmp = original_df_general[original_df_general["strategy"] == strat.name(
-                    )]
+                    tmp = original_df_general[
+                        original_df_general["strategy"] == strat.name()
+                    ]
                     tmp = tmp[tmp["dataset"] == dataset_name]
-                    dico["a_new_done"] = np.unique(
-                        tmp["a_new"].values).tolist()
-                    total -= len(dico["a_new_done"])
+                    dico["a_new_done"] = np.unique(tmp["a_new"].values).tolist()
+                    total -= len(dico["a_new_done"])                
                 strategies.append([strat, dico])
     pbar.total += total
-    compare(dataset, strategies, "cauchy", callback, n_algorithms=top_k, verbose=False,
-            removed_algorithms=removed_algos,
-            par_penalty=par_penalty, max_workers=max_workers, close_pool=close_pool)
+    compare(
+        scenario_path,
+        strategies,
+        "cauchy",
+        callback,
+        n_algorithms=top_k,
+        verbose=False,
+        par_penalty=par,
+        max_workers=max_workers,
+        close_pool=True,
+        removed_algorithms=removed_algorithms
+    )
+
+
+run(scenario_path, max_workers, par)
 
 # Last save
 df_tmp = pd.DataFrame(df_detailed)

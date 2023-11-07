@@ -19,7 +19,7 @@ class Wilcoxon(Discrimination):
     - confidence: target confidence level
     """
 
-    def __init__(self, confidence: float = .95) -> None:
+    def __init__(self, confidence: float = 0.95) -> None:
         super().__init__()
         self.confidence: float = confidence
 
@@ -35,7 +35,8 @@ class Wilcoxon(Discrimination):
 
     def feed(self, state: Tuple[List[Optional[float]], List[float]]) -> None:
         instances_done: List[int] = [
-            inst for inst, time in enumerate(state[0]) if time is not None]
+            inst for inst, time in enumerate(state[0]) if time is not None
+        ]
         # Nothing run = nothing to do
         if len(instances_done) == 0:
             self._current_confidence = 0
@@ -49,16 +50,16 @@ class Wilcoxon(Discrimination):
 
         x1: List[float] = [state[0][i] for i in instances_done]
         x2: List[float] = [state[1][i] for i in instances_done]
-        if all([state[0][i]-state[1][i] == 0 for i in instances_done]):
+        if all([state[0][i] - state[1][i] == 0 for i in instances_done]):
             return
         with warnings.catch_warnings():
-            warnings.simplefilter(action='ignore', category=UserWarning)
-            _, p_stop = wilcoxon(
-                x1, x2, alternative="two-sided")
+            warnings.simplefilter(action="ignore", category=UserWarning)
+            _, p_stop = wilcoxon(x1, x2, alternative="two-sided")
             self._current_confidence: float = 1 - p_stop
             self._is_better: bool = np.mean(x1) < np.mean(x2)
-            self._is_done = (len(instances_done) >= 5 and self._current_confidence >= self.confidence) or \
-                self._is_done
+            self._is_done = (
+                len(instances_done) >= 5 and self._current_confidence >= self.confidence
+            ) or self._is_done
 
     def should_stop(self) -> bool:
         return self._is_done
@@ -72,7 +73,5 @@ class Wilcoxon(Discrimination):
     def name(self) -> str:
         return f"Wilcoxon {self.confidence*100:.0f}%"
 
-    def clone(self) -> 'Wilcoxon':
+    def clone(self) -> "Wilcoxon":
         return Wilcoxon(self.confidence)
-
-

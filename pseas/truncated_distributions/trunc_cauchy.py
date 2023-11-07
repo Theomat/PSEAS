@@ -8,7 +8,13 @@ import numpy as np
 ArrayLike = Union[np.ndarray, float]
 
 
-def pdf(x: ArrayLike, loc: ArrayLike = 0, scale: ArrayLike = 1, a: ArrayLike = -np.inf, b: ArrayLike = np.inf) -> ArrayLike:
+def pdf(
+    x: ArrayLike,
+    loc: ArrayLike = 0,
+    scale: ArrayLike = 1,
+    a: ArrayLike = -np.inf,
+    b: ArrayLike = np.inf,
+) -> ArrayLike:
     c: ArrayLike = np.arctan2(b - loc, scale) - np.arctan2(a - loc, scale)
     if isinstance(x, np.ndarray):
         mask: np.ndarray = np.logical_and(a <= x, x <= b)
@@ -25,10 +31,15 @@ def pdf(x: ArrayLike, loc: ArrayLike = 0, scale: ArrayLike = 1, a: ArrayLike = -
         if x < a or x > b:
             return 0
         return 1 / ((1 + np.square((x - loc) / scale)) * scale * c)
-    
 
 
-def cdf(x: ArrayLike, loc: ArrayLike = 0, scale: ArrayLike = 1, a: ArrayLike = -np.inf, b: ArrayLike = np.inf) -> ArrayLike:
+def cdf(
+    x: ArrayLike,
+    loc: ArrayLike = 0,
+    scale: ArrayLike = 1,
+    a: ArrayLike = -np.inf,
+    b: ArrayLike = np.inf,
+) -> ArrayLike:
     if scale <= 0:
         return np.ones_like(x)
     const: ArrayLike = np.arctan2(a - loc, scale)

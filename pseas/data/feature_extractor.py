@@ -28,7 +28,7 @@ def read_features(file: str) -> Dict[str, np.ndarray]:
     return instance_dict
 
 
-def save_features(instance_dict : Dict[str, np.ndarray], file: str):
+def save_features(instance_dict: Dict[str, np.ndarray], file: str):
     """
     Write features to a CSV file.
 
@@ -61,11 +61,14 @@ def from_scenario(scenario: ASlibScenario) -> Dict[str, np.ndarray]:
         features[name] = data[i]
     return features
 
+
 # ==========================================================================================================
 # TESTING
 # ==========================================================================================================
 if __name__ == "__main__":
-    instance_dict: Dict[str, np.ndarray] = read_features(
-        "./data/SAT18_features.csv")
-    print("read {} instances with {} features each".format(
-        len(instance_dict), instance_dict[list(instance_dict.keys())[0]].shape[0]))
+    instance_dict: Dict[str, np.ndarray] = read_features("./data/SAT18_features.csv")
+    print(
+        "read {} instances with {} features each".format(
+            len(instance_dict), instance_dict[list(instance_dict.keys())[0]].shape[0]
+        )
+    )
